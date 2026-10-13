@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f3f4f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101218" media="(prefers-color-scheme: dark)">
+<title>Checklist Transmisión en Vivo</title>
+<meta property="og:title" content="Checklist Transmisión en Vivo">
+<meta property="og:description" content="Marca el equipo que ya está listo para la transmisión.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23138a4c'/><path d='M9 16.5l4.5 4.5L23 11' stroke='white' stroke-width='3.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #f3f4f7; --surface: #ffffff; --fg: #171a21; --muted: #5d6474; --line: #dfe2ea;
+  --accent: #2443c9; --accent-soft: #e6eafb; --ok: #138a4c; --ok-soft: #e2f4ea;
+  --bad: #c9302c; --bad-soft: #fbe6e5; --live: #e0332e; --on-accent: #ffffff;
+  --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #101218; --surface: #181b23; --fg: #eceef3; --muted: #9aa1b2; --line: #2a2e3a;
+    --accent: #8ea2ff; --accent-soft: #232a48; --ok: #4fd08a; --ok-soft: #173326;
+    --bad: #ff7b74; --bad-soft: #3a1d1c; --live: #ff5a54; --on-accent: #101218; color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.4; -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; }
+.wrap { max-width: 640px; margin: 0 auto; padding-inline: 16px; padding-block: calc(20px + env(safe-area-inset-top, 0px)) calc(110px + env(safe-area-inset-bottom, 0px)); }
+
+header.top { display: grid; gap: 4px; padding-block: 8px 16px; }
+.eyebrow { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 14px; letter-spacing: .12em; text-transform: uppercase; color: var(--live); }
+.eyebrow .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--live); box-shadow: 0 0 0 4px color-mix(in srgb, var(--live) 22%, transparent); }
+.eyebrow .conn { margin-left: auto; font-family: var(--font-body); font-size: 12px; letter-spacing: 0; text-transform: none; font-weight: 600; color: var(--muted); }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: 34px; line-height: 1.05; margin: 0; text-wrap: balance; }
+.sub { color: var(--muted); margin: 0; font-size: 15px; }
+.me { font-size: 14px; color: var(--muted); }
+.me button { font: inherit; color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 10px; display: grid; gap: 10px; border-bottom: 1px solid var(--line); }
+.progress-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.count { font-family: var(--font-display); font-weight: 700; font-size: 26px; font-variant-numeric: tabular-nums; }
+.count small { font-size: 16px; color: var(--muted); font-weight: 600; }
+.tallies { display: flex; gap: 12px; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.t-bad { color: var(--bad); } .t-pend { color: var(--muted); }
+.meter { height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; display: flex; }
+.meter i { display: block; height: 100%; transition: width .3s ease; }
+.m-ok { background: var(--ok); } .m-bad { background: var(--bad); }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { font: 600 14px var(--font-body); border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 99px; padding: 6px 14px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+.note { margin-top: 14px; padding: 10px 12px; border-radius: 10px; background: var(--bad-soft); font-size: 14px; }
+
+section.dept { margin-top: 22px; }
+.dept-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 6px; }
+.dept-head h2 { font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: .04em; text-transform: uppercase; margin: 0; }
+.dc { font-size: 13px; color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dc.done { color: var(--ok); }
+ul.items { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+li.item { display: grid; grid-template-columns: 1fr auto; align-items: center; border-top: 1px solid var(--line); }
+li.item:first-child { border-top: 0; }
+li.item.is-ok { background: var(--ok-soft); }
+li.item.is-bad { background: var(--bad-soft); }
+.main { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: center; text-align: left; width: 100%; min-width: 0; padding: 12px 8px 12px 14px; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; }
+.box { width: 26px; height: 26px; border-radius: 7px; border: 2px solid var(--muted); display: grid; place-items: center; color: var(--surface); font-weight: 700; font-size: 16px; line-height: 1; }
+.is-ok .box { background: var(--ok); border-color: var(--ok); }
+.is-bad .box { background: var(--bad); border-color: var(--bad); }
+.txt { min-width: 0; }
+.label { font-weight: 500; overflow-wrap: anywhere; }
+.is-ok .label { color: var(--muted); }
+.meta { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.is-ok .meta { color: var(--ok); } .is-bad .meta { color: var(--bad); }
+.falta { margin-right: 10px; font: 600 13px var(--font-body); padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); cursor: pointer; }
+.is-bad .falta { background: var(--bad); border-color: var(--bad); color: var(--surface); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.empty { padding: 14px; color: var(--muted); font-size: 14px; }
+
+.actions { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: color-mix(in srgb, var(--bg) 92%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-top: 1px solid var(--line); }
+.actions-in { max-width: 640px; margin: 0 auto; display: flex; gap: 10px; }
+.btn { flex: 1; font: 600 15px var(--font-body); padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); cursor: pointer; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn.danger { color: var(--bad); }
+.btn.danger.armed { background: var(--bad); border-color: var(--bad); color: #fff; }
+.toast { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: 14px; font-weight: 600; z-index: 20; max-width: calc(100% - 32px); text-align: center; }
+
+.sheet-bg { position: fixed; inset: 0; background: rgb(0 0 0 / .45); z-index: 30; display: grid; align-items: end; justify-items: center; }
+.sheet { width: 100%; max-width: 480px; background: var(--surface); border-radius: 16px 16px 0 0; padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 12px; }
+@media (min-width: 560px) { .sheet-bg { align-items: center; } .sheet { border-radius: 16px; } }
+.sheet h3 { font-family: var(--font-display); font-size: 24px; margin: 0; }
+.sheet p { margin: 0; color: var(--muted); font-size: 15px; }
+.sheet input { font: 16px var(--font-body); padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); width: 100%; }
+.sheet .row { display: flex; gap: 10px; }
+@media (prefers-reduced-motion: reduce) { .meter i { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow"><span class="dot"></span>Transmisión en vivo<span class="conn" id="conn">Conectando…</span></div>
+    <h1>Checklist de equipo</h1>
+    <p class="sub">Toca un equipo cuando esté listo. Si no está, toca <strong>Falta</strong>.</p>
+    <div class="me" id="me" hidden>Marcando como <strong id="me-name"></strong> · <button id="me-change" type="button">Cambiar</button></div>
+  </header>
+
+  <div class="bar">
+    <div class="progress-row">
+      <div class="count" id="count">0 <small>de 0 listos</small></div>
+      <div class="tallies"><span class="t-bad" id="t-bad">0 faltan</span><span class="t-pend" id="t-pend">0 pendientes</span></div>
+    </div>
+    <div class="meter" aria-hidden="true"><i class="m-ok" id="m-ok" style="width:0"></i><i class="m-bad" id="m-bad" style="width:0"></i></div>
+    <div class="filters" role="group" aria-label="Mostrar">
+      <button class="chip" type="button" data-f="todo" aria-pressed="true">Todo</button>
+      <button class="chip" type="button" data-f="pend" aria-pressed="false">Pendientes</button>
+      <button class="chip" type="button" data-f="bad" aria-pressed="false">Faltan</button>
+    </div>
+  </div>
+
+  <div class="note" id="note" hidden></div>
+  <div id="list"></div>
+</div>
+
+<div class="actions"><div class="actions-in">
+  <button class="btn primary" id="copy" type="button">Copiar para WhatsApp</button>
+  <button class="btn danger" id="reset" type="button" hidden>Reiniciar</button>
+</div></div>
+<div class="toast" id="toast" hidden></div>
+
+<div class="sheet-bg" id="sheet" hidden>
+  <form class="sheet" id="name-form">
+    <h3>¿Cómo te llamas?</h3>
+    <p>Así el equipo sabe quién marcó cada cosa.</p>
+    <input id="name-input" maxlength="40" autocomplete="given-name" placeholder="Tu nombre" required>
+    <div class="row"><button class="btn primary" type="submit">Listo</button></div>
+  </form>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+<script>
+const SECCIONES = [
+  { icon: "🎥", nombre: "Cámaras de transmisión (4)", items: [
+    ["cam-cuerpos", "4 cámaras"], ["cam-lentes", "4 lentes con sus tapas"],
+    ["cam-baterias", "Baterías (2 por cámara) o adaptadores de corriente"], ["cam-cargadores", "Cargadores de baterías"],
+    ["cam-tarjetas", "Tarjetas de memoria"], ["cam-tripodes", "3 trípodes con sus platos"],
+    ["cam-gimbal", "1 gimbal (para la cámara 4)"], ["cam-pano", "Paño para limpiar lentes"] ] },
+  { icon: "📸", nombre: "Cámara de fotos y recap", items: [
+    ["foto-cuerpo", "Cámara"], ["foto-lentes", "Lentes"], ["foto-baterias", "Baterías extra"],
+    ["foto-cargador", "Cargador"], ["foto-tarjetas", "Tarjetas de memoria vacías"], ["foto-mic", "Micrófono para la cámara"] ] },
+  { icon: "🚁", nombre: "Dron", items: [
+    ["dron-dron", "Dron"], ["dron-rc2", "Control RC 2 con carga"], ["dron-baterias", "Baterías cargadas (mínimo 3)"],
+    ["dron-cargador", "Cargador del dron"], ["dron-tarjeta", "Tarjeta de memoria"] ] },
+  { icon: "📡", nombre: "Transmisores (cámaras del escenario)", items: [
+    ["tx-tx", "2 transmisores (TX)"], ["tx-rx", "2 receptores (RX)"], ["tx-baterias", "Baterías y cargadores"],
+    ["tx-antenas", "Antenas"], ["tx-cables", "Cables cortos de cámara a transmisor"], ["tx-soportes", "Soportes para montar el transmisor en la cámara"] ] },
+  { icon: "🎛️", nombre: "Switch Blackmagic", items: [
+    ["sw-atem", "Switch ATEM"], ["sw-fuente", "Fuente de poder del switch"], ["sw-pantalla", "Pantalla del switch"],
+    ["sw-pantalla-cable", "Cable y fuente de la pantalla"], ["sw-laptop", "Laptop"], ["sw-laptop-cargador", "Cargador de la laptop"],
+    ["sw-usb", "Cable USB de la laptop al switch"] ] },
+  { icon: "🌐", nombre: "Internet Starlink", items: [
+    ["net-antena", "Antena Starlink"], ["net-router", "Router Starlink"], ["net-cable", "Cable de la antena"],
+    ["net-fuente", "Fuente de poder"], ["net-base", "Base o soporte de la antena"],
+    ["net-prueba", "Prueba de velocidad de subida hecha"], ["net-respaldo", "Internet de respaldo (hotspot o datos)"] ] },
+  { icon: "📺", nombre: "Transmisión", items: [
+    ["live-key", "Clave de transmisión (stream key)"], ["live-cuentas", "Acceso a las cuentas (YouTube/Facebook)"],
+    ["live-graficos", "Gráficos: logo y nombres en pantalla"], ["live-espera", "Pantalla de “Iniciamos pronto”"] ] },
+  { icon: "🔊", nombre: "Audio", items: [
+    ["aud-consola", "Cable de la consola al switch"], ["aud-adapt", "Adaptadores de audio"],
+    ["aud-audifonos", "Audífonos para monitorear"], ["aud-ambiente", "Micrófono de ambiente"] ] },
+  { icon: "🔌", nombre: "Cables y energía", items: [
+    ["cab-hdmi-largos", "Cables HDMI largos (cámaras con cable)"], ["cab-hdmi-cortos", "Cables HDMI cortos de repuesto"],
+    ["cab-adapt", "Adaptadores HDMI mini/micro y USB-C"], ["cab-ext", "Extensiones eléctricas"],
+    ["cab-regletas", "Regletas"], ["cab-ups", "UPS o batería de respaldo (switch y laptop)"] ] },
+  { icon: "🧰", nombre: "Varios", items: [
+    ["var-gaffer", "Cinta gaffer"], ["var-bridas", "Bridas o velcro"], ["var-radios", "Radios o intercom"],
+    ["var-linterna", "Linterna"], ["var-etiquetas", "Etiquetas para identificar equipos"] ] },
+];
+const TODOS = SECCIONES.flatMap(s => s.items.map(i => i[0]));
+const CFG = window.CHECKLIST_CONFIG || {};
+const LISTA = CFG.lista || "transmision";
+const NAME_KEY = "checklist-nombre";
+const ES_ADMIN = location.hash === "#admin";
+
+let state = {};       // item_id -> {estado, por, updated_at}
+let filtro = "todo";
+let sb = null;
+let ultimaCarga = 0;
+const enVuelo = {};   // item_id -> promesa de escritura en curso
+
+const $ = id => document.getElementById(id);
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.hidden = false;
+  clearTimeout(toast._t); toast._t = setTimeout(() => { t.hidden = true; }, 2200);
+}
+function note(msg) { $("note").textContent = msg || ""; $("note").hidden = !msg; }
+function conn(msg) { $("conn").textContent = msg; }
+function hora(ts) { try { return new Date(ts).toLocaleTimeString("es-DO", { hour: "numeric", minute: "2-digit" }); } catch { return ""; } }
+function getName() { try { return localStorage.getItem(NAME_KEY) || ""; } catch { return ""; } }
+function setName(n) { try { localStorage.setItem(NAME_KEY, n); } catch {} showName(); }
+function showName() { const n = getName(); $("me").hidden = !n; $("me-name").textContent = n; }
+
+function render() {
+  const ok = TODOS.filter(id => state[id]?.estado === "ok").length;
+  const bad = TODOS.filter(id => state[id]?.estado === "bad").length;
+  const total = TODOS.length, pend = total - ok - bad;
+  $("count").firstChild.nodeValue = ok + " ";
+  $("count").querySelector("small").textContent = "de " + total + " listos";
+  $("t-bad").textContent = bad + (bad === 1 ? " falta" : " faltan");
+  $("t-pend").textContent = pend + (pend === 1 ? " pendiente" : " pendientes");
+  $("m-ok").style.width = (ok / total * 100) + "%";
+  $("m-bad").style.width = (bad / total * 100) + "%";
+
+  const list = $("list"); list.replaceChildren();
+  for (const s of SECCIONES) {
+    const visibles = s.items.filter(([id]) => {
+      const e = state[id]?.estado;
+      return filtro === "todo" || (filtro === "pend" && !e) || (filtro === "bad" && e === "bad");
+    });
+    if (filtro !== "todo" && !visibles.length) continue;
+    const sOk = s.items.filter(([id]) => state[id]?.estado === "ok").length;
+    const sec = el("section", "dept");
+    const head = el("div", "dept-head");
+    head.append(el("h2", null, s.icon + " " + s.nombre), el("span", "dc" + (sOk === s.items.length ? " done" : ""), sOk + "/" + s.items.length));
+    const ul = el("ul", "items");
+    for (const [id, label] of visibles) {
+      const st = state[id], e = st?.estado;
+      const li = el("li", "item" + (e === "ok" ? " is-ok" : e === "bad" ? " is-bad" : ""));
+      const main = el("button", "main"); main.type = "button"; main.dataset.id = id; main.dataset.act = "ok";
+      main.setAttribute("aria-pressed", e === "ok" ? "true" : "false");
+      const txt = el("span", "txt");
+      txt.append(el("span", "label", label));
+      if (e) {
+        let m = e === "ok" ? "Listo" : "Falta";
+        if (st.por) m += " · " + st.por;
+        if (st.updated_at) m += " · " + hora(st.updated_at);
+        txt.append(el("div", "meta", m));
+      }
+      main.append(el("span", "box", e === "ok" ? "✓" : e === "bad" ? "✕" : ""), txt);
+      const f = el("button", "falta", "Falta"); f.type = "button"; f.dataset.id = id; f.dataset.act = "bad";
+      f.setAttribute("aria-pressed", e === "bad" ? "true" : "false");
+      f.setAttribute("aria-label", "Marcar que falta: " + label);
+      li.append(main, f); ul.append(li);
+    }
+    sec.append(head, ul); list.append(sec);
+  }
+  if (!list.children.length) list.append(el("div", "empty", filtro === "bad" ? "No falta nada por ahora." : "Todo está marcado."));
+}
+
+async function cargar() {
+  if (!sb) return;
+  const t = Date.now(); ultimaCarga = t;
+  const { data, error } = await sb.from("checklist_marcas").select("item_id, estado, por, updated_at").eq("lista", LISTA);
+  if (t !== ultimaCarga) return;           // llegó una carga más nueva
+  if (error) { conn("Sin conexión"); return; }
+  const next = {};
+  for (const r of data) next[r.item_id] = r;
+  // no pisar lo que este teléfono está guardando ahora mismo
+  for (const id in enVuelo) { if (state[id]) next[id] = state[id]; else delete next[id]; }
+  state = next; conn("En vivo"); note(""); render();
+}
+
+let pidiendoNombre = null;
+function pedirNombre() {
+  if (getName()) return Promise.resolve();
+  if (pidiendoNombre) return pidiendoNombre;
+  $("sheet").hidden = false; $("name-input").value = ""; setTimeout(() => $("name-input").focus(), 50);
+  pidiendoNombre = new Promise(res => { pedirNombre._res = res; });
+  return pidiendoNombre;
+}
+$("name-form").addEventListener("submit", ev => {
+  ev.preventDefault();
+  const n = $("name-input").value.trim(); if (!n) return;
+  setName(n); $("sheet").hidden = true;
+  if (pedirNombre._res) { pedirNombre._res(); pedirNombre._res = null; pidiendoNombre = null; }
+});
+$("me-change").addEventListener("click", () => {
+  $("sheet").hidden = false; $("name-input").value = getName(); setTimeout(() => $("name-input").select(), 50);
+});
+
+async function marcar(id, act) {
+  if (!sb) { toast("Sin conexión. Revisa el internet."); return; }
+  await pedirNombre();
+  const prev = state[id];
+  const nuevo = prev?.estado === act ? null : act;
+  if (nuevo) state[id] = { estado: nuevo, por: getName(), updated_at: new Date().toISOString() }; else delete state[id];
+  render();
+  const run = async () => {
+    const { error } = await sb.rpc("checklist_marcar", { p_lista: LISTA, p_item: id, p_estado: nuevo, p_por: getName() });
+    if (error) {
+      if (prev) state[id] = prev; else delete state[id];
+      toast("No se pudo guardar. Intenta otra vez.");
+      render();
+    }
+  };
+  const p = (enVuelo[id] || Promise.resolve()).then(run);
+  enVuelo[id] = p;
+  p.finally(() => { if (enVuelo[id] === p) delete enVuelo[id]; });
+}
+
+$("list").addEventListener("click", ev => {
+  const b = ev.target.closest("button[data-id]"); if (b) marcar(b.dataset.id, b.dataset.act);
+});
+document.querySelector(".filters").addEventListener("click", ev => {
+  const c = ev.target.closest(".chip"); if (!c) return;
+  filtro = c.dataset.f;
+  document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === c ? "true" : "false"));
+  render();
+});
+
+function textoWhatsApp() {
+  const ok = TODOS.filter(id => state[id]?.estado === "ok").length;
+  const bad = TODOS.filter(id => state[id]?.estado === "bad").length;
+  let t = "*✅ CHECKLIST – TRANSMISIÓN EN VIVO*\nListos: " + ok + "/" + TODOS.length + (bad ? " · Faltan: " + bad : "") + "\n";
+  for (const s of SECCIONES) {
+    t += "\n*" + s.icon + " " + s.nombre.toUpperCase() + "*\n";
+    for (const [id, label] of s.items) {
+      const e = state[id]?.estado;
+      t += (e === "ok" ? "✅ " : e === "bad" ? "❌ " : "⬜ ") + label + "\n";
+    }
+  }
+  return t + "\n" + location.origin + location.pathname;
+}
+$("copy").addEventListener("click", async () => {
+  const txt = textoWhatsApp();
+  try { await navigator.clipboard.writeText(txt); toast("Copiado. Pégalo en el grupo."); }
+  catch { window.prompt("Copia este texto:", txt); }
+});
+
+if (ES_ADMIN) $("reset").hidden = false;
+let armado = false;
+$("reset").addEventListener("click", async () => {
+  const b = $("reset");
+  if (!armado) {
+    armado = true; b.textContent = "¿Borrar todo?"; b.classList.add("armed");
+    setTimeout(() => { armado = false; b.textContent = "Reiniciar"; b.classList.remove("armed"); }, 3500);
+    return;
+  }
+  armado = false; b.textContent = "Reiniciar"; b.classList.remove("armed");
+  const { error } = await sb.rpc("checklist_reiniciar", { p_lista: LISTA });
+  if (error) { toast("No se pudo reiniciar."); return; }
+  state = {}; render(); toast("Lista reiniciada");
+});
+
+showName();
+render();
+
+if (!window.supabase || !CFG.supabaseUrl || !CFG.supabaseAnonKey || CFG.supabaseAnonKey.startsWith("PEGA")) {
+  conn("Sin conexión");
+  note("La lista no está conectada todavía. Falta la configuración de Supabase.");
+} else {
+  sb = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, { auth: { persistSession: false } });
+  cargar();
+  sb.channel("checklist-" + LISTA)
+    .on("postgres_changes", { event: "*", schema: "public", table: "checklist_marcas" }, () => cargar())
+    .subscribe();
+  setInterval(cargar, 20000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) cargar(); });
+  window.addEventListener("online", cargar);
+}
+</script>
+</body>
+</html>
